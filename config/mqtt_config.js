@@ -15,11 +15,11 @@ class MqttHandler {
     });
 
     this.mqttClient.on("connect", () => {
-      console.log(`mqtt client connect`);
+      console.log(`mqtt connect`);
     });
 
     this.mqttClient.on("close", () => {
-      console.log(`mqtt client disconnected`);
+      console.log(`mqtt disconnected`);
     });
   }
 
