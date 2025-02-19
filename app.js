@@ -11,17 +11,17 @@ async function getPing() {
   return res.alive ? `Ping: ${res.time} ms` : "No Network Connection";
 }
 
-// function getCpuTemperature() {
-//   return new Promise((resolve, reject) => {
-//     exec("vcgencmd measure_temp", (error, stdout) => {
-//       if (error) {
-//         reject("Error getting CPU temperature");
-//       } else {
-//         resolve(stdout.trim());
-//       }
-//     });
-//   });
-// }
+function getCpuTemperature() {
+  return new Promise((resolve, reject) => {
+    exec("vcgencmd measure_temp", (error, stdout) => {
+      if (error) {
+        reject("Error getting CPU temperature");
+      } else {
+        resolve(stdout.trim());
+      }
+    });
+  });
+}
 
 function getUptime() {
   const uptimeSeconds = os.uptime();
@@ -58,20 +58,17 @@ async function getRaspberryPiInfo() {
     const uptime = getUptime();
     const systemInfo = getSystemInfo();
 
-    // console.log(pingResult);
-    // console.log(temp);
-    // console.log(uptime);
-    // console.log(systemInfo);
-
-    mqttClient.sendMqtt("TOROSS", JSON.stringify({
-        systemInfo,
-        pingResult,
-        uptime,
-        temp,
+    mqttClient.sendMqtt("RASPBERRY/INFORMATION/ASIM03", JSON.stringify({
+      systemInfo,
+      pingResult,
+      uptime,
+      temp,
     }));
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
-getRaspberryPiInfo();
+setInterval(() => {
+  getRaspberryPiInfo();
+}, 30000);
