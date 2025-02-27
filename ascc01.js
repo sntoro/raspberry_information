@@ -1,17 +1,17 @@
 const os = require("os");
 const { exec } = require("child_process");
 const ping = require("ping");
-const path = require('path');
+const path = require("path");
 var mqttHandler = new require("./config/mqtt_config.js");
 var mqttClient = new mqttHandler();
 mqttClient.connect();
 
-const work_center = path.basename(__filename).split('.')[0].toUpperCase();
+const work_center = path.basename(__filename).split(".")[0].toUpperCase();
 
 async function getPing() {
   const host = "10.8.8.169"; // Google DNS
   const res = await ping.promise.probe(host);
-  return res.alive ? `Ping: ${res.time} ms` : "No Network Connection";
+  return res.alive ? res.time : "No Network Connection";
 }
 
 function getCpuTemperature() {
@@ -32,15 +32,15 @@ function getUptime() {
   const hours = Math.floor((uptimeSeconds % 86400) / 3600);
   const minutes = Math.floor((uptimeSeconds % 3600) / 60);
 
-  return `Uptime: ${days}d ${hours}h ${minutes}m`;
+  return `${days}d ${hours}h ${minutes}m`;
 }
 
 function getSystemInfo() {
   return {
     hostname: os.hostname(),
     cpuUsage: os.loadavg()[0], // Beban CPU rata-rata dalam 1 menit
-    freeMemory: `free : ${(os.freemem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
-    totalMemory: `total : ${(os.totalmem() / 1024 / 1024 / 1024).toFixed(2)} GB`,
+    freeMemory: (os.freemem() / 1024 / 1024 / 1024).toFixed(2), //GB
+    totalMemory: (os.totalmem() / 1024 / 1024 / 1024).toFixed(2), //GB
     cpuCores: os.cpus().length,
     platform: os.platform(),
     arch: os.arch(),
@@ -59,13 +59,16 @@ async function getRaspberryPiInfo() {
     const uptime = getUptime();
     const systemInfo = getSystemInfo();
 
-    mqttClient.sendMqtt("DEVICE/RASPBERRY/STATUS", JSON.stringify({
+    mqttClient.sendMqtt(
+      "DEVICE/RASPBERRY/STATUS",
+      JSON.stringify({
         workCenter: work_center,
         systemInfo,
         pingResult,
         uptime,
         temp,
-    }));
+      })
+    );
   } catch (error) {
     console.error("Error:", error);
   }
